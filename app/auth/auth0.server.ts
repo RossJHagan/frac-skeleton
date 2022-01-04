@@ -14,9 +14,11 @@ const auth0 = {
   audience: AUTH0_FAUNA_AUDIENCE,
 }
 
+const SESSION_AUTH_KEY = "auth";
+
 function redirectUrl(state: string): string {
   const redirectUrlParams = {
-    audience: AUTH0_FAUNA_AUDIENCE,
+    audience: auth0.audience,
     response_type: "code",
     client_id: auth0.clientId,
     redirect_uri: auth0.callbackUrl,
@@ -47,7 +49,7 @@ interface AuthorizationTokens {
 async function verify(request: Request): Promise<[boolean, AuthorizationTokens?]> {
   const userSession = await getSession(request.headers.get('Cookie'))
 
-  let kvStored = userSession.get("auth");
+  let kvStored = userSession.get(SESSION_AUTH_KEY);
   if (!kvStored) {
     return [false,];
   }
@@ -151,7 +153,7 @@ function decodeJWT(token: string) {
 
 function validateToken(token: { iss: string; aud: string, iat: number, exp: number }) {
   try {
-    const dateInSecs = d => Math.ceil(Number(d) / 1000)
+    const dateInSecs = (d: Date) => Math.ceil(Number(d) / 1000)
     const date = new Date()
 
     let iss = token.iss
@@ -204,7 +206,7 @@ async function persistAuth(exchange: any) {
 
   // getSession creates a session if one doesn't exist
   const session = await getSession();
-  session.set("auth", JSON.stringify(body));
+  session.set(SESSION_AUTH_KEY, JSON.stringify(body));
 
   return redirect("/", {
     headers: {
