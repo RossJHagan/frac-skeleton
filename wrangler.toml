@@ -1,10 +1,14 @@
-name = "remix-cloudflare-workers"
+name = "remix-workers"
 type = "javascript"
 
 zone_id = ""
 account_id = ""
 route = ""
 workers_dev = true
+
+kv_namespaces = [
+    { binding = "AUTH_STORE", id = "<your auth kv namespace id>" }
+]
 
 [site]
 bucket = "./public"
@@ -16,7 +20,3 @@ watch_dir = "build/index.js"
 
 [build.upload]
 format="service-worker"
-
-kv_namespaces = [
-    { binding = "AUTH_STORE", id = "83ebf7c034b84ac7bac80100acbe97e9" }
-]
